@@ -1,0 +1,126 @@
+# Mean Reversion Trading System
+
+A machine learning-powered algorithmic trading system that identifies optimal entry points for mean reversion positions in blue-chip equities and cryptocurrencies using Bollinger Bands, technical indicators, and predictive modeling.
+
+## 📊 Overview
+
+This trading system uses historical market data to train machine learning models that predict profitable mean reversion opportunities. The system monitors live market data, calculates technical indicators in real-time, and automatically executes trades through broker APIs (Alpaca and Binance.US).
+
+### Key Features
+
+- **Machine Learning Models**: Logistic regression models trained on historical price data with technical indicators
+- **Mean Reversion Strategy**: Identifies oversold conditions using Bollinger Bands and executes buy orders below the lower band
+- **Multi-Asset Support**: Compatible with both equities (via Alpaca) and cryptocurrencies (via Binance.US)
+- **Real-Time Execution**: Live websocket data streaming and automated order placement
+- **Risk Management**: Built-in stop-loss mechanisms and position monitoring
+- **Performance Tracking**: SQLite database logging of all trades, indicators, and performance metrics
+
+## 🏗️ Project Structure
+
+```
+Trading System/
+├── infra/                          # Core infrastructure and trading logic
+│   ├── algo.py                     # Main trading bot logic and strategy execution
+│   ├── indicators.py               # Technical indicator calculations (RSI, DI+/-, MACD)
+│   ├── AlpacaTrader.py            # Alpaca API integration for equity trading
+│   ├── AlpacaWebsocketClient.py   # Alpaca websocket for live data streaming
+│   ├── BinanceUSTrader.py         # Binance.US API integration for crypto trading
+│   ├── BinanceUSWebsocketClient.py # Binance.US websocket for live data
+│   ├── BinanceUSPrimer.py         # Historical data initialization
+│   ├── comms.py                    # Communication/notification system
+│   ├── config.yaml                 # Configuration file (API keys, trading parameters)
+│   └── test.py                     # Testing utilities
+├── mr_model/                       # Machine learning model development
+│   ├── ML_model_1.ipynb           # Primary ML model training notebook
+│   ├── apca_historical.ipynb      # Alpaca historical data retrieval
+│   ├── download_data.ipynb        # Data collection utilities
+│   ├── minima_capture.ipynb       # Local minima identification
+│   └── hist_data/                 # Historical training data
+│       ├── AAPL - 730 Day.csv
+│       ├── AMD - 730 Day.csv
+│       ├── NVDA - 365 Day.csv
+│       ├── MSFT - 365 Day.csv
+│       ├── BTC_USD - 365 Day.csv
+│       ├── ETH_USD - 180 Day.csv
+│       └── XRP_USD - 365 Day.csv
+├── streams/                        # Additional websocket implementations
+│   ├── binance_stream.py
+│   ├── kraken_stream.py
+│   └── KrakenWebsocketClient.py
+└── data_collection/                # Data collection utilities
+
+```
+
+## 🎯 Trading Strategy
+
+### Mean Reversion Approach
+
+The system identifies mean reversion opportunities using:
+
+1. **Bollinger Bands**: 20-period EMA with customizable standard deviation width
+2. **Entry Signal**: Price crosses below lower Bollinger Band
+3. **Exit Conditions**:
+   - Price returns to mean (profitable exit)
+   - Stop-loss threshold breach (risk management)
+4. **ML Enhancement**: Logistic regression model filters entry signals based on:
+   - RSI (Relative Strength Index)
+   - ADX (Average Directional Index)
+   - MACD (Moving Average Convergence Divergence)
+   - Price momentum (3, 5, 9, 14-period slopes)
+   - Standard deviation metrics
+   - Volume characteristics
+
+### Technical Indicators
+
+- **RSI (14-period)**: Momentum oscillator to identify overbought/oversold conditions
+- **DI+/DI-**: Directional movement indicators for trend strength
+- **MACD**: Trend-following momentum indicator
+- **Bollinger Bands**: Volatility-based envelope around price
+
+### Training Data
+
+The system includes historical data for:
+- **Blue-Chip Equities**: AAPL, AMD, NVDA, MSFT (365-730 days)
+- **Cryptocurrencies**: BTC, ETH, XRP (180-365 days)
+
+### Model Performance
+
+The notebook demonstrates:
+- ROC curve analysis
+- Confusion matrix evaluation
+- Threshold optimization vs. growth rate
+- Portfolio simulation across multiple assets
+- Typical accuracy improvements of 15-30% over baseline
+
+## 📊 Database Schema
+
+Trade data is stored in SQLite (`btc_MR_trades.db`):
+
+```sql
+CREATE TABLE trades (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    timestamp TEXT,
+    asset TEXT,
+    buy INTEGER,              -- 1 if buy executed
+    sell INTEGER,             -- 1 if sell executed
+    position INTEGER,         -- Current position status
+    quantity REAL,
+    price REAL,
+    volume REAL,
+    mean REAL,                -- Current EMA
+    std REAL,                 -- Current standard deviation
+    buy_line REAL,            -- Lower Bollinger Band
+    sell_line REAL,           -- Upper Bollinger Band / mean
+    rsi REAL,
+    di_plus REAL,
+    di_minus REAL,
+    macd REAL
+);
+```
+
+### Broker Integrations
+
+- **AlpacaTrader**: Equity trading with fractional shares support
+- **BinanceUSTrader**: Cryptocurrency spot trading
+- Both support market orders with automatic position sizing
+
