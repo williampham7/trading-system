@@ -1,0 +1,21 @@
+email:
+  address: 
+  password: 
+  recipient_sms: 
+
+alpaca:
+  key: 
+  secret: 
+
+
+binance_us:
+  key: 
+  secret: 
+
+
+trading_config:
+  asset: "BTC/USDC"
+  usdc_amt: 10
+  bollinger_std_width: 2
+  sell_std: -0.35
+  loss_threshold: 0.98

@@ -1,0 +1,7 @@
+# Ignore the mr_model/hist_data directory
+mr_model/hist_data/
+
+# Ignore Python bytecode files and pycache directories
+__pycache__/
+*.pyc
+*.pyo
